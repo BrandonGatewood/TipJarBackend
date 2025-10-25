@@ -1,0 +1,6 @@
+@TipJar_HostAddress = http://localhost:5059
+
+GET {{TipJar_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
