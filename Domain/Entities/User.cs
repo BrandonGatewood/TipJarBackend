@@ -13,7 +13,7 @@ public class User(string username, string passwordHash, decimal grossTips) : Bas
 
     private readonly List<Tip> _tips = [];
 
-    public IReadOnlyCollection<Tip> Tips => _tips;
+    public IReadOnlyCollection<Tip> Tips => _tips.AsReadOnly();
 
 
 
