@@ -8,6 +8,9 @@ public class Tip(decimal amount, Guid userId) : BaseEntity
     private readonly Guid _userId = userId;
     public Guid UserId => _userId;
 
+    private readonly User? _user;
+    public User? User => _user;
+
     private DateTime _updatedAt;
     public DateTime UpdatedAt => _updatedAt;
 
