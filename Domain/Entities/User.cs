@@ -1,64 +1,69 @@
+using TipJar.Application.Dtos.TipDto;
+using TipJar.Application.Mappings;
+
 namespace TipJar.Domain.Entities;
 
-public class User(string username, string passwordHash, decimal grossTips) : BaseEntity
+public class User : BaseEntity
 {
-    private string _username = username;
+    private string _username = string.Empty;
     public string Username => _username;
 
-    private string _passwordHash = passwordHash;
+    private string _passwordHash = string.Empty;
     public string PasswordHash => _passwordHash;
 
-    private decimal _grossTips = grossTips;
+    private decimal _grossTips;
     public decimal GrossTips => _grossTips;
 
     private readonly List<Tip> _tips = [];
 
     public IReadOnlyCollection<Tip> Tips => _tips.AsReadOnly();
 
-
-
-    public void UpdateUsername(string username)
+    private User() { }
+    
+    public User(string username, string passwordHash)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new ArgumentException("Username cannot be empty.");
-
         _username = username;
-    }
-
-    internal void UpdatePasswordHashInternal(string passwordHash)
-    {
-        if (string.IsNullOrWhiteSpace(passwordHash))
-            throw new ArgumentException("Password cannot be empty.");
-
         _passwordHash = passwordHash;
     }
 
-    public void AddTip(decimal amount)
-    {
-        if (amount <= 0)
-            throw new ArgumentException("Tip amount must be positive.");
 
+    public void ChangeUsername(string newUsername)
+    {
+        _username = newUsername;
+    }
+
+    public void ChangePassword(string newPasswordHash)
+    {
+        _passwordHash = newPasswordHash;
+    }
+
+    public Tip AddTip(decimal amount)
+    {
         Tip tip = new(amount, Id);
         UpdateGrossTips(amount);
         _tips.Add(tip);
+
+        return tip;
     }
 
-    public void UpdateTip(Guid tipId, decimal amount)
+    public TipReceiptDto? EditTip(Guid tipId, decimal amount, DateTime createdAt)
     {
         foreach (Tip tip in _tips)
         {
             if (tip.Id == tipId)
             {
                 UpdateGrossTips(-tip.Amount);
-                tip.UpdateAmount(amount);
+                tip.Edit(amount, createdAt);
                 UpdateGrossTips(amount);
 
-                break;
+                return tip.ToReceipt();
             }
         }
+
+        return null;
     }
 
-    public void RemoveTip(Guid tipId)
+    public bool DeleteTip(Guid tipId)
     {
         foreach (Tip tip in _tips)
         {
@@ -67,9 +72,11 @@ public class User(string username, string passwordHash, decimal grossTips) : Bas
                 UpdateGrossTips(-tip.Amount);
                 _tips.Remove(tip);
 
-                break;
+                return true;
             }
         }
+
+        return false;
     }
 
     private void UpdateGrossTips(decimal amount)

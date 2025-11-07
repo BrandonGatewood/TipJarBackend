@@ -10,4 +10,9 @@ public abstract class BaseEntity
         Id = Guid.NewGuid();
         CreatedAt = DateTime.UtcNow;
     }
+
+    protected void EditCreatedAt(DateTime createdAt)
+    {
+        CreatedAt = createdAt;
+    }
 }

@@ -8,20 +8,16 @@ public class Tip(decimal amount, Guid userId) : BaseEntity
     private readonly Guid _userId = userId;
     public Guid UserId => _userId;
 
-    private readonly User? _user;
-    public User? User => _user;
-
     private DateTime _updatedAt;
     public DateTime UpdatedAt => _updatedAt;
 
-    public void UpdateAmount(decimal amount)
+    public void Edit(decimal amount, DateTime createdAt)
     {
-        if (amount <= 0)
-        {
-            throw new ArgumentException("Tip amount must be positive.");
-        }
+        if (_amount != amount)
+            _amount = amount;
 
-        _amount = amount;
+        if(CreatedAt != createdAt)
+            EditCreatedAt(createdAt);
 
         UpdateTime(DateTime.UtcNow);
     }
