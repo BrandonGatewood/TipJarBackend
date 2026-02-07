@@ -2,6 +2,7 @@ using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TipJar.Api.Middleware;
 using TipJar.Application.Services;
@@ -30,6 +31,8 @@ var jwtKey = builder.Configuration["JWT:KEY"]
 // Db Configuration
 var connectionString = builder.Configuration["DB:CONNECTIONSTRING"]
     ?? throw new InvalidOperationException("Database connection string is missing in configuration.");
+var redisConnectionString = builder.Configuration["REDIS:CONNECTIONSTRING"]
+    ?? throw new InvalidOperationException("Redis connection string is missing in configuration.");
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
@@ -41,6 +44,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITipService, TipService>();
+builder.Services.AddStackExchangeRedisCache(Options =>
+{
+    Options.Configuration = redisConnectionString; 
+    Options.InstanceName = "TipJar_";
+});
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(connectionString);
@@ -64,6 +72,16 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(jwtKey)
         )
     };
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
@@ -92,6 +110,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors("AllowReactApp");
 app.UseAuthentication(); 
+app.UseAuthorization();
 app.MapControllers();
 app.Run();

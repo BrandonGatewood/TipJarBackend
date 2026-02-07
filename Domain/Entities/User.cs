@@ -26,12 +26,6 @@ public class User : BaseEntity
         _passwordHash = passwordHash;
     }
 
-
-    public void ChangeUsername(string newUsername)
-    {
-        _username = newUsername;
-    }
-
     public void ChangePassword(string newPasswordHash)
     {
         _passwordHash = newPasswordHash;
@@ -46,7 +40,7 @@ public class User : BaseEntity
         return tip;
     }
 
-    public TipReceiptDto? EditTip(Guid tipId, decimal amount, DateTime createdAt)
+    public void EditTip(Guid tipId, decimal amount, DateTime createdAt)
     {
         foreach (Tip tip in _tips)
         {
@@ -55,12 +49,8 @@ public class User : BaseEntity
                 UpdateGrossTips(-tip.Amount);
                 tip.Edit(amount, createdAt);
                 UpdateGrossTips(amount);
-
-                return tip.ToReceipt();
             }
         }
-
-        return null;
     }
 
     public bool DeleteTip(Guid tipId)

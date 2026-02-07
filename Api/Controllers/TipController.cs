@@ -11,40 +11,16 @@ public class TipController(ITipService tipService) : ControllerBase
     private readonly ITipService _tipService = tipService;
 
     [HttpPost]
-    public async Task<IActionResult> AddTip([FromBody] AddTipDto dto)
+    public async Task<IActionResult> AddTip([FromBody] AmountDto dto)
     {
-        return Ok(await _tipService.AddTipAsync(dto.Amount));
+        await _tipService.AddTipAsync(dto.Amount);
+        return Ok();
     }
 
     [HttpPatch("{id}")]
     public async Task<IActionResult> EditTip(Guid id, [FromBody] EditTipDto dto)
     {
-        return Ok(await _tipService.EditTipAsync(id, dto.Amount, dto.CreatedAt));
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTip(Guid id)
-    {
-        await _tipService.DeleteTipAsync(id);
-        
+        await _tipService.EditTipAsync(id, dto.Amount, dto.CreatedAt);
         return Ok();
-    }
-
-    [HttpGet("thisMonthsEarnings")]
-    public async Task<IActionResult> GetThisMonthsEarnings()
-    {
-        return Ok(await _tipService.GetThisMonthsEarningsAsync());
-    }
-
-    [HttpGet("thisMonthsTips")]
-    public async Task<IActionResult> GetThisMonthsTips()
-    {
-        return Ok(await _tipService.GetThisMonthsTipsAsync());
-    }
-
-    [HttpGet("quarterlyInfo")]
-    public async Task<IActionResult> GetQuarterlyInfo([FromBody] SelectedQuarterDto dto)
-    {
-        return Ok(await _tipService.GetQuarterlyInfoAsync(dto.Year, dto.Quarter));
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TipJar.Application.Dtos.UserDto;
+using TipJar.Application.ReadModels;
 using TipJar.Domain.Entities;
 using TipJar.Domain.Interfaces.Repositories;
 using TipJar.Infrastructure.Data;
@@ -37,14 +38,14 @@ public class UserRepository(AppDbContext context) : IUserRepository
             .SingleOrDefaultAsync(u => u.Id == id);
     }
 
-    public async Task<UserInfoDto?> GetUserInfoByIdAsync(Guid id)
+    public async Task<UserReadModel?> GetUserInfoByIdAsync(Guid id)
     {
         return await _context.Users
             .Where(u => u.Id == id)
-            .Select(u => new UserInfoDto
+            .Select(u => new UserReadModel 
             {
-                Username = u.Username,
-                GrossTips = u.GrossTips
+                GrossTips = u.GrossTips,
+                Tips = u.Tips
             })
             .SingleOrDefaultAsync();
     }

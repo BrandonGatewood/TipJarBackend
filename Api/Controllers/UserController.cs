@@ -24,14 +24,6 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok();
     }
 
-    [HttpPatch("changeUsername")]
-    public async Task<IActionResult> ChangeUsername([FromBody] ChangeUsernameDto dto)
-    {
-        await _userService.ChangeUsernameAsync(dto.NewUsername);
-
-        return Ok();
-    }
-
     [HttpDelete]
     public async Task<IActionResult> RemoveUser()
     {
