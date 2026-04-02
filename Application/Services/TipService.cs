@@ -54,6 +54,8 @@ public class TipService(IUserService userService, IUserRepository userRepository
             user.EditTip(id, amount, utcDate);
 
             await _userRepository.SaveChangesAsync();
+            string cacheKey = $"user_info_{ userId }";
+            await _distributedCache.RemoveAsync(cacheKey);
         }
         catch(FormatException)
         {
