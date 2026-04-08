@@ -26,3 +26,5 @@ jobs:
         run: dotnet build
 
       # run unit tests
+      - name: Run all tests
+        run: dotnet test --configuration Release --no-build
