@@ -12,7 +12,6 @@ using TipJar.Infrastructure.Data;
 using TipJar.Infrastructure.Repositories;
 using TipJar.Infrastructure.Security;
 
-var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
