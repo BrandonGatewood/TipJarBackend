@@ -2,7 +2,6 @@ using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TipJar.Api.Middleware;
 using TipJar.Application.Services;
@@ -14,6 +13,8 @@ using TipJar.Infrastructure.Repositories;
 using TipJar.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 if (builder.Environment.IsDevelopment())
     Env.Load();
@@ -51,7 +52,10 @@ builder.Services.AddStackExchangeRedisCache(Options =>
 });
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(connectionString);
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(3);
+    });
 });
 builder.Services.AddAuthentication(options =>
 {
@@ -73,12 +77,14 @@ builder.Services.AddAuthentication(options =>
         )
     };
 });
+var allowedOrigins = builder.Configuration["FRONTEND:URL"]?.Split(',') 
+                     ?? ["http://localhost:5173"];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -86,32 +92,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Ensure DB connection and apply migrations
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    try
-    {
-        if (dbContext.Database.CanConnect())
-        {
-            dbContext.Database.Migrate();
-            Console.WriteLine("✅ Successfully connected to the database!");
-        }
-        else
-        {
-            Console.WriteLine("❌ Failed to connect to the database.");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"🔥 Exception while connecting to the DB: {ex.Message}");
-    }
-}
-
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowReactApp");
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
