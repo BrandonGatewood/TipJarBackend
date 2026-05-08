@@ -18,7 +18,7 @@ public class AuthService(IUserRepository userRepository, IJwtService jwtService,
     {
         UserLoginInfoDto? user = await _userRepository.GetForLoginAsync(username);
 
-        if (user == null || _passwordHasher.Verify(password, user.PasswordHash))
+        if (user == null || !_passwordHasher.Verify(password, user.PasswordHash))
             throw new UnauthorizedException("Invalid username or password.");
 
 
