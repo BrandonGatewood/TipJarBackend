@@ -11,7 +11,7 @@ namespace TipJar.Tests.Services.AuthServices;
 
 public class LoginAsyncTests
 {
-    private readonly Mock<IUserRepository> _userRespositoryMock = new();
+    private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<IJwtService> _jwtServiceMock = new();
     private readonly Mock<IPasswordHasher> _passwordHasherMock = new();
     private readonly AuthService _authService;
@@ -19,7 +19,7 @@ public class LoginAsyncTests
     public LoginAsyncTests()
     {
         _authService = new AuthService(
-            _userRespositoryMock.Object,
+            _userRepositoryMock.Object,
             _jwtServiceMock.Object,
             _passwordHasherMock.Object
         );
@@ -35,7 +35,7 @@ public class LoginAsyncTests
         Guid userId = Guid.NewGuid();
         string expectedToken = "valid.jwt.token";
 
-        _userRespositoryMock.Setup(repo => repo.GetForLoginAsync(username))
+        _userRepositoryMock.Setup(repo => repo.GetForLoginAsync(username))
             .ReturnsAsync(new UserLoginInfoDto
             {
                 Id = userId,
@@ -57,7 +57,7 @@ public class LoginAsyncTests
         Assert.Equal(expectedToken, result.Token);
 
         // Verify that user repository was called once
-        _userRespositoryMock.Verify(repo => repo.GetForLoginAsync(It.IsAny<string>()), Times.Once);
+        _userRepositoryMock.Verify(repo => repo.GetForLoginAsync(It.IsAny<string>()), Times.Once);
 
         // Verify that the password hasher was called once
         _passwordHasherMock.Verify(hasher => hasher.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
@@ -70,7 +70,7 @@ public class LoginAsyncTests
     public async Task InvalidUsername_ThrowUnauthorizedException()
     {
         // Arrange
-        _userRespositoryMock.Setup(repo => repo.GetForLoginAsync(It.IsAny<string>()))
+        _userRepositoryMock.Setup(repo => repo.GetForLoginAsync(It.IsAny<string>()))
             .ReturnsAsync((UserLoginInfoDto?)null);
 
         // Act
@@ -80,7 +80,7 @@ public class LoginAsyncTests
         Assert.Equal("Invalid username or password.", exception.Message);
 
         // Verify that user repository was called once
-        _userRespositoryMock.Verify(repo => repo.GetForLoginAsync(It.IsAny<string>()), Times.Once);
+        _userRepositoryMock.Verify(repo => repo.GetForLoginAsync(It.IsAny<string>()), Times.Once);
 
         // Verify that the JWT service was never called
         _jwtServiceMock.Verify(jwt => jwt.GenerateToken(It.IsAny<Guid>()), Times.Never);
@@ -95,7 +95,7 @@ public class LoginAsyncTests
         string passwordHash = "hashedpassword";
         Guid userId = Guid.NewGuid();
 
-        _userRespositoryMock.Setup(repo => repo.GetForLoginAsync(username))
+        _userRepositoryMock.Setup(repo => repo.GetForLoginAsync(username))
             .ReturnsAsync(new UserLoginInfoDto
             {
                 Id = userId,
@@ -113,7 +113,7 @@ public class LoginAsyncTests
         Assert.Equal("Invalid username or password.", exception.Message);
 
         // Verify that user repository was called once
-        _userRespositoryMock.Verify(repo => repo.GetForLoginAsync(username), Times.Once);
+        _userRepositoryMock.Verify(repo => repo.GetForLoginAsync(username), Times.Once);
 
         // Verify that the JWT service was never called
         _jwtServiceMock.Verify(jwt => jwt.GenerateToken(It.IsAny<Guid>()), Times.Never);
