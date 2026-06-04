@@ -52,7 +52,7 @@ public class RegisterAsyncTests
         _userRepositoryMock.Verify(repo => repo.ExistsByUsernameAsync(username), Times.Once);
 
         // Verify that the password hasher was called once
-        _passwordHasherMock.Verify(hasher => hasher.Hash(It.IsAny<string>()), Times.Once);
+        _passwordHasherMock.Verify(hasher => hasher.Hash(password), Times.Once);
 
         // Verify that the JWT service was called once 
         _jwtServiceMock.Verify(jwt => jwt.GenerateToken(It.IsAny<Guid>()), Times.Once);
