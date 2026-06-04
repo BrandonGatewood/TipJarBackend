@@ -2,29 +2,29 @@ name: Production CI Check
 
 # Trigger the workflow
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+    build-and-test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "10.0.x"
 
-      - name: Restore dependencies
-        run: dotnet restore
+            - name: Restore dependencies
+              run: dotnet restore
 
-      - name: Build project
-        run: dotnet build
+            - name: Build project
+              run: dotnet build
 
-      # run unit tests
-      - name: Run all tests
-        run: dotnet test --configuration Release --no-build
+            # run unit tests
+            - name: Run all tests
+              run: dotnet test --configuration Release
