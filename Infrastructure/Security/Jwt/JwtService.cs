@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using TipJar.Domain.Interfaces.Services;
-using TipJar.Infrastructure.Security;
+using TipJar.Infrastructure.Security.Jwt;
 
 namespace TipJar.Application.Services;
 

@@ -1,4 +1,4 @@
-namespace TipJar.Infrastructure.Security;
+namespace TipJar.Infrastructure.Security.Jwt;
 
 public class JwtOptions
 {
