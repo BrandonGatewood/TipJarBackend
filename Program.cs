@@ -11,6 +11,7 @@ using TipJar.Domain.Interfaces.Services;
 using TipJar.Infrastructure.Data;
 using TipJar.Infrastructure.Repositories;
 using TipJar.Infrastructure.Security;
+using TipJar.Infrastructure.Security.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
