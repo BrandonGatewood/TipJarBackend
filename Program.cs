@@ -45,6 +45,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITipService, TipService>();
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection("JWT"));
 builder.Services.AddStackExchangeRedisCache(Options =>
 {
     Options.Configuration = redisConnectionString; 

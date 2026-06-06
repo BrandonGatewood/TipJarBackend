@@ -2,13 +2,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using TipJar.Domain.Interfaces.Services;
+using TipJar.Infrastructure.Security;
 
 namespace TipJar.Application.Services;
 
-public class JwtService(IConfiguration config) : IJwtService
+public class JwtService(IOptions<JwtOptions> options) : IJwtService
 {
-    private readonly IConfiguration _config = config;
+    private readonly JwtOptions _options = options.Value;
 
     public string GenerateToken(Guid id)
     {
@@ -17,17 +19,14 @@ public class JwtService(IConfiguration config) : IJwtService
             new Claim(ClaimTypes.NameIdentifier, id.ToString())
         };
 
-        var keyString = _config["JWT:KEY"] ?? throw new InvalidOperationException("JWT:KEY is not configured.");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var expiresIn = int.TryParse(_config["JWT:EXPIRESINMINUTES"], out var mins) ? mins : 60;
-
         var token = new JwtSecurityToken(
-            issuer: _config["JWT:ISSUER"],
-            audience: _config["JWT:AUDIENCE"],
+            issuer: _options.Issuer,
+            audience: _options.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiresIn),
+            expires: DateTime.UtcNow.AddMinutes(_options.ExpiresInMinutes),
             signingCredentials: creds
         );
 
