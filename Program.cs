@@ -11,6 +11,7 @@ using TipJar.Domain.Interfaces.Services;
 using TipJar.Infrastructure.Data;
 using TipJar.Infrastructure.Repositories;
 using TipJar.Infrastructure.Security;
+using TipJar.Infrastructure.Security.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITipService, TipService>();
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection("JWT"));
 builder.Services.AddStackExchangeRedisCache(Options =>
 {
     Options.Configuration = redisConnectionString; 
