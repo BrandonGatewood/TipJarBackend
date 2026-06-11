@@ -27,15 +27,14 @@ public class AddTipAsyncTests
     }
 
     [Fact]
-    public async Task ValidTip_SavesTip()
+    public async Task ValidInput_SavesTip()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
+        User user = new("username", "password");
 
         _userService.Setup(x => x.GetUserId())
             .Returns(userId);
-
-        var user = new User("username", "password"); // assuming default ctor works
 
         _userRepository.Setup(x => x.GetByIdAsync(userId))
             .ReturnsAsync(user);
@@ -46,18 +45,42 @@ public class AddTipAsyncTests
         await service.AddTipAsync(10);
 
         // Assert
+        _userService.Verify(x => x.GetUserId(), Times.Once);
+        _userRepository.Verify(x => x.GetByIdAsync(userId), Times.Once);
         _tipRepository.Verify(x => x.AddAsync(It.IsAny<Tip>()), Times.Once);
-
         _userRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
-
-        _cache.Verify(x => x.RemoveAsync(
-            $"user_info_{userId}",
-            default
-        ), Times.Once);
+        _cache.Verify(x => x.RemoveAsync($"user_info_{userId}", default), Times.Once);
     }
 
     [Fact]
-    public async Task InvalidAmount_ThrowsInvalidTipAmountException()
+    public async Task UserNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        Guid userId = Guid.NewGuid();
+        Guid tipId = Guid.NewGuid();
+        var service = CreateService();
+
+        _userService.Setup(x => x.GetUserId())
+            .Returns(userId);
+
+        _userRepository.Setup(x => x.GetByIdAsync(userId))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => service.AddTipAsync(10));
+
+        // Assert
+        Assert.Equal("User not found.", exception.Message);
+
+        _userService.Verify(x => x.GetUserId(), Times.Once);
+        _userRepository.Verify(x => x.GetByIdAsync(userId), Times.Once);
+        _tipRepository.Verify(x => x.AddAsync(It.IsAny<Tip>()), Times.Never);
+        _userRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
+        _cache.Verify(x => x.RemoveAsync(It.IsAny<string>(), default), Times.Never);
+    }
+
+    [Fact]
+    public async Task InvalidTipInput_ThrowsInvalidTipAmountException()
     {
         // Arrange
         var service = CreateService();
@@ -70,17 +93,10 @@ public class AddTipAsyncTests
         // Assert
         Assert.Equal("Tip amount must be positive.", exception.Message);
 
-        // Verify userService was never called
         _userService.Verify(x => x.GetUserId(), Times.Never);
-
-        // Verify userRepository was never called
         _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
-        _userRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
-
-        // verfiy tipRepository was never called
         _tipRepository.Verify(x => x.AddAsync(It.IsAny<Tip>()), Times.Never);
-
-        // Verify cache was never called 
+        _userRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
         _cache.Verify(x => x.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }
 }
