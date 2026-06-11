@@ -1,8 +1,6 @@
 using System.Globalization;
 using Microsoft.Extensions.Caching.Distributed;
-using TipJar.Application.Dtos.TipDto;
 using TipJar.Application.Exceptions;
-using TipJar.Application.ReadModels;
 using TipJar.Domain.Entities;
 using TipJar.Domain.Interfaces.Repositories;
 using TipJar.Domain.Interfaces.Services;
