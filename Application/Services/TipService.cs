@@ -1,14 +1,13 @@
 using System.Globalization;
 using Microsoft.Extensions.Caching.Distributed;
-using TipJar.Application.Dtos.TipDto;
 using TipJar.Application.Exceptions;
-using TipJar.Application.ReadModels;
 using TipJar.Domain.Entities;
 using TipJar.Domain.Interfaces.Repositories;
 using TipJar.Domain.Interfaces.Services;
 
 namespace TipJar.Application.Services;
 
+/// <inheritdoc />
 public class TipService(IUserService userService, IUserRepository userRepository, ITipRepository tipRepository, IDistributedCache distributedCache) : ITipService
 {
     private readonly IUserService _userService = userService;
@@ -16,7 +15,7 @@ public class TipService(IUserService userService, IUserRepository userRepository
     private readonly ITipRepository _tipRepository = tipRepository;
     private readonly IDistributedCache _distributedCache = distributedCache;
 
-
+    /// <inheritdoc /> 
     public async Task AddTipAsync(decimal amount)
     {
         if (amount <= 0)
@@ -34,6 +33,7 @@ public class TipService(IUserService userService, IUserRepository userRepository
         await _distributedCache.RemoveAsync(cacheKey);
     }
 
+    /// <inheritdoc /> 
     public async Task EditTipAsync(Guid id, decimal amount, string createdAt)
     {
         if (amount <= 0)

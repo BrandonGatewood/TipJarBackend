@@ -2,7 +2,6 @@ using Moq;
 using Xunit;
 using TipJar.Application.Services;
 using TipJar.Domain.Interfaces.Repositories;
-using TipJar.Domain.Interfaces.Services;
 using TipJar.Domain.Interfaces.Security;
 using TipJar.Application.Dtos.UserDto;
 using TipJar.Application.Exceptions;
